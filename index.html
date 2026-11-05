@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Betting Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#157a43;--card:#fff;--ink:#2a1512;--mute:#7a5c55;--line:#d3e6d9;--red:#d90f2b;--orange:#ff7a00;--warn:#c2410c;--green:#15803d}
+@media(prefers-color-scheme:dark){:root{--bg:#0b3d22;--card:#12301f;--ink:#eaf6ee;--mute:#a8c7b3;--line:#2c5a3f;--red:#ff5a5f;--orange:#ff9a3d;--warn:#fb923c;--green:#4ade80}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,system-ui,sans-serif}
+header{background:linear-gradient(105deg,#c8102e 0%,#e0361a 55%,#ea580c 100%);color:#fff;border-bottom:4px solid var(--orange)}
+.in{max-width:1200px;margin:auto;padding:28px 16px 18px}
+h1{font:700 46px/1 'Barlow Condensed',sans-serif;letter-spacing:.5px;margin:0}
+.sub{margin:6px 0 0;font-size:17px;opacity:.95}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:18px}
+button,select{font:inherit;font-weight:600;border:1px solid transparent;padding:7px 14px;border-radius:999px;cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.tab{background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.55)}
+.tab:hover{background:rgba(255,255,255,.28)}
+.tab[aria-selected=true]{background:#fff;color:var(--red);border-color:#fff}
+select{background:#fff;color:#2a1512}
+input{font:inherit;border:1px solid transparent;padding:7px 14px;border-radius:999px;background:#fff;color:#2a1512}input::placeholder{color:#7a5c55}input:focus-visible{outline:3px solid #fff;outline-offset:2px}#q{flex:1;min-width:180px;max-width:320px}
+.act{background:#2a1512;color:#fff}.act:hover{background:#000}.act:disabled{opacity:.6;cursor:wait}
+.bar .act:first-of-type{margin-left:auto}
+header .note{margin:14px 0 0;background:rgba(0,0,0,.25);color:#fff;padding:6px 12px;border-radius:8px;font-size:14px}
+header .note:empty{display:none}
+main{max-width:1200px;margin:auto;padding:14px 16px 30px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+main>.note,main>.h2,main>.msg,main>.wrap,main>.card.wide{grid-column:1/-1}
+main>.note{color:#e8f5ec;margin:0}main>.h2{color:#fff;margin:10px 0 0}
+@media(max-width:900px){main{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){main{grid-template-columns:1fr}}
+.note{color:var(--mute);font-size:14px}
+.msg{padding:12px 14px;border-left:5px solid var(--orange);background:var(--card);border-radius:8px;margin:12px 0}
+.card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--orange);border-radius:10px;padding:16px 18px;margin:0;box-shadow:0 2px 10px rgba(217,15,43,.07)}
+.card h3{margin:0;font:700 24px 'Barlow Condensed',sans-serif;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.card.top{border-left-color:var(--red)}.lab{display:inline-block;background:linear-gradient(105deg,#c8102e,#ea580c);color:#fff;font-weight:600;font-size:13px;padding:2px 12px;border-radius:999px;margin-bottom:8px}
+.badge{font-weight:700}.row .badge{background:var(--orange);color:#2a1512}.row .badge.High{background:#15803d;color:#fff}.row .badge.Medium{background:var(--orange);color:#2a1512}.row .badge.Close{background:none;border:1px solid var(--mute);color:var(--mute)}
+.bar2{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:12px}.bar2 i{display:block;height:100%;background:linear-gradient(90deg,#c8102e,#ff7a00)}.row .badge.Strong{background:#c8102e;color:#fff}.row .badge.Lean{background:none;border:1px solid var(--mute);color:var(--mute)}
+.why{margin:10px 0 0;color:var(--mute);font-size:15px}.h2{font:700 24px 'Barlow Condensed',sans-serif;margin:22px 0 0}
+.vs{color:var(--mute);font-size:16px;font-weight:600}
+.cr{width:32px;height:32px;object-fit:contain;background:#fff;border-radius:50%;padding:3px;border:1px solid var(--line)}
+.tn{white-space:nowrap}.tn .cr{width:26px;height:26px;margin-right:8px;vertical-align:middle}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.row span{background:rgba(255,122,0,.12);padding:2px 11px;border-radius:999px;font-size:14px}
+.row .big{background:none;padding:0;margin-right:6px;font:700 30px 'Barlow Condensed',sans-serif;color:var(--red)}
+.arb{border:2px solid var(--red);border-left-width:8px}
+.wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+th{background:linear-gradient(105deg,#c8102e,#ea580c);color:#fff;font-weight:600;white-space:nowrap}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}tr:hover td{background:rgba(255,122,0,.08)}
+.W{color:var(--green);font-weight:700}.L{color:var(--red);font-weight:700}.D{color:var(--warn);font-weight:700}
+.ban{max-width:1200px;margin:18px auto 0;padding:0 16px}.ban[hidden]{display:none}
+.vp{overflow:hidden;border-radius:14px;border-bottom:4px solid var(--orange)}
+.trk{display:flex;transition:transform .55s ease}@media(prefers-reduced-motion:reduce){.trk{transition:none}}
+.slide{flex:0 0 100%;padding:22px 24px;color:#fff;background:linear-gradient(120deg,#2a1512 0%,#44190f 65%,#6b2a0e 100%);display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.slide .cr{width:72px;height:72px}.rk{font:700 17px 'Barlow Condensed',sans-serif;color:#ffb36b}
+.tm{font:700 38px/1.05 'Barlow Condensed',sans-serif}.sm{font-size:15px;opacity:.9;margin-top:2px}
+.st2{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.st2 span{background:rgba(255,255,255,.14);padding:2px 12px;border-radius:999px;font-size:14px}
+.st2 .od{background:linear-gradient(105deg,#d90f2b,#ea580c);font-weight:700}
+.ctl{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+.ctl button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.ctl .bn{background:var(--card);color:var(--ink);border:1px solid var(--line);padding:3px 14px}
+.dot{width:12px;height:12px;padding:0;border-radius:99px;background:var(--line);border:0}.dot[aria-current=true]{background:var(--orange);width:28px}
+.ctr{text-align:center;margin:6px 0 0;color:#e8f5ec}
+footer{max-width:1200px;margin:auto;padding:0 16px 32px;color:#e8f5ec;font-size:13px}
+.bk{color:#fff;display:flex;align-items:center;gap:6px;font-size:14px}#bk{width:120px}
+.site,.row .site{background:#15803d;color:#fff;font-weight:700;padding:2px 11px;border-radius:999px;font-size:14px}
+.ke{margin-top:12px}.kr{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin-top:6px}
+.ke label{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:3px 6px 3px 12px}
+.ke label.best{background:#15803d;border-color:#15803d}.ke label.best a{color:#fff}
+.ke a{flex:1;font-weight:600;color:var(--ink);text-decoration:none}.ke input{width:76px;padding:3px 10px;border:1px solid var(--line);text-align:right}
+.vbox{margin-top:10px;display:grid;gap:4px}.vbox .win{color:var(--green)}.vbox .lose{color:var(--red)}
+.card input,.card select{border:1px solid var(--line)}
+@media(max-width:600px){h1{font-size:34px}.in{padding:18px 12px 12px}button,select,input{min-height:42px}.bar .act:first-of-type{margin-left:0}main{padding:12px 10px 24px}.card{padding:14px}}
+</style></head><body>
+<header><div class="in"><h1>Betting Analyzer</h1><p class="sub">Value bets, arbitrage and team form across Europe's top five leagues</p>
+<div class="bar" role="tablist">
+<button class="tab" role="tab" data-t="win">Likely winners</button><button class="tab" role="tab" data-t="top">Top picks</button><button class="tab" role="tab" data-t="value">Value bets</button><button class="tab" role="tab" data-t="arb">Arbitrage</button>
+<button class="tab" role="tab" data-t="all">All matches</button><button class="tab" role="tab" data-t="teams">Team stats</button><button class="tab" role="tab" data-t="acc">Accuracy</button><button class="tab" role="tab" data-t="bets">My bets</button>
+<select id="lg" aria-label="League"><option value="">All leagues</option><option value="PL">Premier League</option><option value="PD">La Liga</option><option value="SA">Serie A</option><option value="BL1">Bundesliga</option><option value="FL1">Ligue 1</option></select>
+<button class="act" id="rm">Update results</button><button class="act" id="ro">Update odds</button><button class="act" id="rk">Update Kenyan odds</button></div>
+<div class="bar"><input id="q" type="search" placeholder="Search a team" aria-label="Search a team"><select id="dt" aria-label="Date"><option value="all">All upcoming</option><option value="today">Today</option><option value="tomorrow">Tomorrow</option><option value="week">Next 7 days</option><option value="date">Pick a date</option></select><input id="dd" type="date" aria-label="Pick a date"><select id="so" aria-label="Sort"><option value="time">Sort: kickoff time</option><option value="strength">Sort: strongest first</option></select><label class="bk">Bankroll (KSh) <input id="bk" type="number" min="0" step="100" aria-label="Bankroll in Kenyan shillings"></label></div>
+<p class="note" id="st"></p></div></header>
+<section class="ban" id="ban" hidden aria-roledescription="carousel" aria-label="Top three teams most likely to win"></section><main id="out"></main>
+<footer>For information only. Odds change fast and every bet can lose, so never stake money you cannot afford to lose. 18+ only. Suggested stakes use quarter-Kelly, capped at 5% of your bankroll.</footer>
+<script>
+const $=s=>document.querySelector(s);const cr=u=>u?`<img class="cr" src="${esc(u)}" alt="" loading="lazy" onerror="this.remove()">`:'';let tab='win',data=null,byT=false,skew=0;
+const nowD=()=>new Date(Date.now()+skew);
+let bank=(()=>{try{return +localStorage.getItem('bank')||10000}catch(e){return 10000}})();
+const ksh=n=>'KSh '+Math.round(n).toLocaleString('en-KE');
+const stakeKsh=pct=>{const r=Math.round(Math.min(pct,5)/100*bank/10)*10;return r<10?'under KSh 10':ksh(r)};
+const SITES=[['betPawa','https://www.betpawa.co.ke'],['Betika','https://www.betika.com'],['Odibets','https://odibets.com'],['Betfalme','https://betfalme.com']];
+let ko=(()=>{try{return JSON.parse(localStorage.getItem('ko'))||{}}catch(e){return {}}})();
+const kk=(e,s,n)=>[e.home,e.away,s,n].join('|');
+function kenya(e){const s=e.pick.side,p=e.probs[['Home','Draw','Away'].indexOf(s)];
+const ix=['Home','Draw','Away'].indexOf(s),L=SITES.map(([n,u])=>{const t=ko[kk(e,s,n)],auto=e.kenya&&e.kenya[n]?e.kenya[n][ix]:null,o=parseFloat(t!==undefined&&t!==''?t:auto);return{n,u,o,ed:o>1?p*o-1:0}});
+const b=L.filter(x=>x.ed>0).sort((x,y)=>y.ed-x.ed)[0];
+return `<div class="ke"><div class="note">Type the ${esc(s)} odds you see on your Kenyan site:</div><div class="kr">${L.map(x=>`<label class="${b&&b.n===x.n?'best':''}"><a href="${x.u}" target="_blank" rel="noopener">${x.n}</a><input type="number" step="0.01" min="1" inputmode="decimal" aria-label="${x.n} odds" data-k="${esc(kk(e,s,x.n))}" value="${x.o||''}"></label>`).join('')}</div>${b?`<div class="row"><span class="site">Bet on ${b.n} at ${b.o.toFixed(2)}</span><span>Edge ${pc(b.ed)}</span><span>Stake ${stakeKsh(25*b.ed/(b.o-1))}</span></div>`:L.some(x=>x.o>1)?'<div class="note">No edge at the odds you entered, so skip this bet on those sites.</div>':''}</div>`}
+const dateNote=()=>'Today is '+nowD().toLocaleDateString([], {weekday:'long',day:'numeric',month:'long',year:'numeric'})+(data&&data.time_source==='web'?' (read from the web). ':' (computer clock, the web could not be reached). ')+(Math.abs(skew)>3e5?'Your computer clock is off by about '+Math.round(Math.abs(skew)/6e4)+' minutes, so online time is used. ':'');
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),qv=()=>norm($('#q').value.trim());
+const teamOk=e=>!qv()||norm(e.home).includes(qv())||norm(e.away).includes(qv()),teamHit=n=>!qv()||norm(n).includes(qv());
+const day0=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
+function dayOk(e){const v=$('#dt').value,t=day0(nowD()),k=day0(e.commence),diff=Math.round((k-t)/864e5);
+if(v==='today')return diff===0;if(v==='tomorrow')return diff===1;if(v==='week')return diff>=0&&diff<7;
+if(v==='date'&&$('#dd').value)return +k===+new Date($('#dd').value+'T00:00');return true}
+function dayName(d){const t=day0(nowD()),k=day0(d),diff=Math.round((k-t)/864e5);return diff===0?'Today':diff===1?'Tomorrow':k.toLocaleDateString([],{weekday:'long',day:'numeric',month:'short'})}
+function grp(list,get,fn){let last='';return list.map(x=>{const e=get(x),d=day0(e.commence).toDateString();let hd='';if(byT&&d!==last){last=d;hd=`<h2 class="h2">${dayName(e.commence)}</h2>`}return hd+fn(x)}).join('')}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pc=x=>(x*100).toFixed(1)+'%',LG={PL:'Premier League',PD:'La Liga',SA:'Serie A',BL1:'Bundesliga',FL1:'Ligue 1'};
+const when=d=>new Date(d).toLocaleString([], {weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+async function api(u,o){const r=await fetch(u,o);if(!r.ok){let m=r.statusText;try{m=(await r.json()).detail}catch(e){}throw new Error(m)}return r.json()}
+async function load(){try{data=await api('/api/picks');skew=data.now?new Date(data.now)-Date.now():0;const u=data.odds_updated;$('#st').textContent=dateNote()+(u?'Odds updated '+new Date(u).toLocaleString()+'. Arbitrage windows close fast; confirm odds at the bookmaker before betting.':'No odds yet. Click Update odds.')}catch(e){$('#st').textContent=e.message}render()}
+let bi=0,bkey='',hov=false,playing=!(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+function go(n){const t=document.querySelectorAll('#ban .slide');if(!t.length)return;bi=(n+t.length)%t.length;$('#ban .trk').style.transform=`translateX(-${bi*100}%)`;document.querySelectorAll('#ban .dot').forEach((d,k)=>d.setAttribute('aria-current',k===bi))}
+function bannerSync(){const b=$('#ban');if(!data||!b)return;const lg=$('#lg').value,key=[lg,$('#dt').value,$('#dd').value,data.odds_updated,bank].join('|');if(key===bkey)return;bkey=key;
+const ok0=data.events.filter(e=>(!lg||e.league===lg)&&dayOk(e));
+const d0=ok0.length?day0(ok0.map(e=>new Date(e.commence)).sort((a,b)=>a-b)[0]):null;
+const ok=d0?ok0.filter(e=>+day0(e.commence)===+d0):[];
+const s=ok.map(e=>({e,i:e.probs[0]>=e.probs[2]?0:2})).sort((a,b)=>b.e.probs[b.i]-a.e.probs[a.i]).slice(0,3);
+if(!s.length){b.hidden=true;b.innerHTML='';return}
+const dn=dayName(d0),when2=dn==='Today'||dn==='Tomorrow'?dn.toLowerCase():'on '+esc(dn);
+const sl=s.map(({e,i},n)=>{const p=e.probs[i],t=i===0?e.home:e.away,op=i===0?e.away:e.home,c=i===0?e.home_crest:e.away_crest,o=e.best[i],lab=p>=.6?'High confidence':p>=.48?'Medium confidence':'Close call';
+return `<div class="slide" role="group" aria-roledescription="slide" aria-label="${n+1} of ${s.length}">${cr(c)}<div><div class="rk">#${n+1} most likely to win ${when2}</div><div class="tm">${esc(t)} to win</div><div class="sm">against ${esc(op)}, ${LG[e.league]}, ${when(e.commence)}</div><div class="st2"><span class="od">Win chance ${pc(p)}</span><span>${lab}</span><span>Best odds ${o.odds} at ${esc(o.book)}</span>${e.pick&&e.pick.side===(i===0?'Home':'Away')?'<span>Also good value</span><span>Stake '+stakeKsh(e.pick.stake_pct)+'</span>':''}</div></div></div>`}).join('');
+b.hidden=false;b.innerHTML=`<div class="vp"><div class="trk">${sl}</div></div><div class="ctl"><button class="bn" id="bpv" aria-label="Previous pick">&#8249;</button>${s.map((x,n)=>`<button class="dot" aria-label="Show pick ${n+1}"></button>`).join('')}<button class="bn" id="bnx" aria-label="Next pick">&#8250;</button><button class="bn" id="bpl">${playing?'Pause':'Play'}</button></div><p class="note ctr">Estimates from past results and bookmaker prices, not guarantees.</p>`;
+b.querySelectorAll('.dot').forEach((d,k)=>d.onclick=()=>go(k));b.querySelector('#bpv').onclick=()=>go(bi-1);b.querySelector('#bnx').onclick=()=>go(bi+1);
+b.querySelector('#bpl').onclick=e=>{playing=!playing;e.target.textContent=playing?'Pause':'Play'};
+b.onmouseenter=b.onfocusin=()=>{hov=true};b.onmouseleave=b.onfocusout=()=>{hov=false};go(0)}
+setInterval(()=>{if(playing&&!hov)go(bi+1)},6000);
+function match(e){return `<h3>${cr(e.home_crest)}${esc(e.home)} <span class="vs">vs</span> ${cr(e.away_crest)}${esc(e.away)}</h3><div class="note">${LG[e.league]} · ${when(e.commence)} · ${e.books} bookmakers</div>`}
+const fav=e=>e.probs.indexOf(Math.max(...e.probs))===['Home','Draw','Away'].indexOf(e.pick.side);
+const rank=(a,b)=>(fav(b)-fav(a))||b.pick.score-a.pick.score;
+const mini=e=>`<h3>${cr(e.home_crest)}${esc(e.home)} <span class="vs">vs</span> ${cr(e.away_crest)}${esc(e.away)}</h3><div class="note">${LG[e.league]} · ${when(e.commence)}</div>`;
+function pickCard(e,lab){const p=e.pick,ix=['Home','Draw','Away'].indexOf(p.side),f=fav(e),who=p.side==='Home'?e.home+' to win':p.side==='Away'?e.away+' to win':'Draw',sn=Math.round(Math.min(p.stake_pct,5)/100*bank/10)*10,ret=sn*p.odds;
+return `<div class="card${lab?' top':''}">${lab?`<div class="lab">${lab}</div>`:''}${mini(e)}<div class="row"><span class="big">Bet on: ${esc(who)}</span></div><div class="row"><span class="badge ${f?'High':'Close'}">${f?'Likely to win':'Underdog: riskier'}</span><span>Win chance ${Math.round(e.probs[ix]*100)}%</span><span>Odds ${p.odds}</span><span class="site">Bet at ${esc(p.book)}</span></div>
+<div class="vbox">${sn>=10?`<div>Bet <b>${ksh(sn)}</b> and get <b>${ksh(ret)}</b> back if it wins (profit ${ksh(ret-sn)})</div>`:`<div>Raise your bankroll at the top to see a stake.</div>`}</div>${kenya(e)}<div class="row"><button class="act" data-log="${esc(JSON.stringify({fixture:e.home+' v '+e.away,pick:who,site:p.book,odds:p.odds,stake:sn}))}">I bet this</button></div></div>`}
+async function render(){const o=$('#out'),lg=$('#lg').value;byT=$('#so').value==='time';bannerSync();document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===tab));
+if(tab==='acc'){o.innerHTML='<div class="msg">Replaying a year of past matches. This can take several seconds.</div>';try{const r=await api('/api/backtest?league='+(lg||'PL'));
+const b=r.calibration.map(x=>`<tr><td>${x.range}</td><td>${x.n}</td><td>${pc(x.predicted)}</td><td>${pc(x.actual)}</td></tr>`).join('');
+o.innerHTML=`<p class="note">${LG[lg||'PL']}: the model re-predicted ${r.matches} past matches, each time using only results from before that match.</p><div class="card wide"><div class="row"><span class="big">${pc(r.accuracy)} correct</span><span>Always picking home: ${pc(r.baseline_accuracy)}</span><span>Log loss ${r.logloss.toFixed(3)} (average-frequency guess: ${r.baseline_logloss.toFixed(3)})</span><span>Brier ${r.brier.toFixed(3)}</span></div><p class="why">Lower log loss and Brier mean better probabilities. If log loss is not clearly below the baseline, the model adds little.</p></div><h2 class="h2">Is "70%" really 70%?</h2><div class="wrap"><table><tr><th>Predicted win chance</th><th>Matches</th><th>Average predicted</th><th>Actually won</th></tr>${b}</table></div>`}catch(e){o.innerHTML=`<div class="msg">${esc(e.message)}</div>`}return}
+if(tab==='bets'){try{const B=await api('/api/bets'),done=B.filter(b=>b.result==='won'||b.result==='lost'),st=done.reduce((a,b)=>a+b.stake,0),ret=done.reduce((a,b)=>a+(b.result==='won'?b.stake*b.odds:0),0),prof=ret-st,w=done.filter(b=>b.result==='won').length,S={};
+done.forEach(b=>{const x=S[b.site]=S[b.site]||{n:0,p:0};x.n++;x.p+=b.result==='won'?b.stake*(b.odds-1):-b.stake});
+const sg=n=>(n>=0?'+':'-')+ksh(Math.abs(n));
+o.innerHTML=`<div class="card wide"><div class="row"><span class="big">${sg(prof)}</span><span>Staked ${ksh(st)}</span><span>Won ${w} of ${done.length}</span><span>Return ${st?(prof/st*100).toFixed(1):0}%</span></div>${Object.entries(S).map(([k,v])=>`<div class="note">${esc(k)}: ${sg(v.p)} from ${v.n} bets</div>`).join('')}</div>
+<div class="card wide"><h3>Add a bet</h3><div class="row"><input id="bm" placeholder="Match, e.g. Arsenal v Chelsea" aria-label="Match"><input id="bp" placeholder="Pick, e.g. Arsenal to win" aria-label="Pick"><select id="bs">${SITES.map(x=>`<option>${x[0]}</option>`).join('')}<option>Other</option></select><input id="bo" type="number" step="0.01" min="1" placeholder="Odds" aria-label="Odds"><input id="bt" type="number" min="1" placeholder="Stake KSh" aria-label="Stake in KSh"><button class="act" id="badd">Save bet</button></div></div>`+
+(B.length?B.map(b=>`<div class="card"><h3>${esc(b.fixture)}</h3><div class="note">${esc(b.pick)} · ${esc(b.site)} · odds ${b.odds} · ${ksh(b.stake)} · ${new Date(b.placed).toLocaleDateString()}</div><div class="row">${b.result==='pending'?['won','lost','void'].map(r=>`<button class="act" data-res="${r}" data-id="${b.id}">${r[0].toUpperCase()+r.slice(1)}</button>`).join(''):`<span class="badge ${b.result==='won'?'High':'Close'}">${b.result==='won'?'Won '+sg(b.stake*(b.odds-1)):b.result==='lost'?'Lost '+sg(-b.stake):'Void'}</span>`}<button class="act" data-del="${b.id}">Delete</button></div></div>`).join(''):'<div class="msg">No bets saved yet. Tap "I bet this" on a pick, or add one above.</div>')}catch(e){o.innerHTML=`<div class="msg">${esc(e.message)}</div>`}return}
+if(tab==='teams'){try{const t=lg||!qv()?await api('/api/teams?league='+(lg||'PL')):(await Promise.all(Object.keys(LG).map(l=>api('/api/teams?league='+l)))).flat();if(!t.length){o.innerHTML='<div class="msg">No results saved yet, so there are no team stats. Click Update results at the top and wait about 3 minutes, then open this tab again.</div>';return}o.innerHTML=`<p class="note">${lg?LG[lg]:qv()?'All leagues':LG.PL}, current season. Attack above 1 scores more than average. Defense below 1 concedes less.</p><div class="wrap"><table><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>Pts</th><th>Form</th><th>Att</th><th>Def</th></tr>${t.filter(x=>teamHit(x.team)).map(x=>`<tr><td class="tn">${cr(x.crest)}${esc(x.team)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.pts}</td><td>${[...x.form].map(c=>`<span class="${c}">${c}</span>`).join('')}</td><td>${x.attack??'-'}</td><td>${x.defense??'-'}</td></tr>`).join('')}</table></div>`}catch(e){o.innerHTML=`<div class="msg">${esc(e.message)}</div>`}return}
+if(!data||!data.events.length){o.innerHTML='<div class="msg">No upcoming matches loaded. Click Update results, then Update odds.</div>';return}
+let ev=data.events.filter(e=>(!lg||e.league===lg)&&dayOk(e)&&teamOk(e)).sort((a,b)=>new Date(a.commence)-new Date(b.commence)),h='';
+if(tab==='win'){const L=['Home','Draw','Away'];
+const rows=ev.map(e=>{const i=e.probs.indexOf(Math.max(...e.probs));return{e,i,p:e.probs[i]}}).sort((a,b)=>byT?new Date(a.e.commence)-new Date(b.e.commence):b.p-a.p);
+h=rows.length?'<p class="note">The side the analysis rates most likely to win each match. Use Sort to order by kickoff or by strength. Favourites win more often but never always, and a likely winner at low odds is not automatically a good bet.</p>'+grp(rows,x=>x.e,({e,i,p})=>{const lab=p>=.6?'High':p>=.48?'Medium':'Close',who=i===0?e.home:i===2?e.away:'Draw',o=e.best[i];
+return `<div class="card">${match(e)}<div class="row"><span class="big">${esc(who)}${i===1?'':' to win'}</span><span class="badge ${lab}">${lab==='Close'?'Too close to call':lab+' confidence'}</span></div><div class="bar2" aria-hidden="true"><i style="width:${(p*100).toFixed(0)}%"></i></div><div class="row"><span>Home ${pc(e.probs[0])}</span><span>Draw ${pc(e.probs[1])}</span><span>Away ${pc(e.probs[2])}</span><span>Best odds ${o.odds} at ${esc(o.book)}</span>${e.pick&&e.pick.side===L[i]?'<span>Also good value</span><span>Suggested stake '+stakeKsh(e.pick.stake_pct)+'</span>':'<span>No stake suggested: the price offers no edge</span>'}</div></div>`}):'<div class="msg">No upcoming matches fit these filters. Try All upcoming or clear the search.</div>'}
+if(tab==='top'){const ps=ev.filter(e=>e.pick).sort(rank).slice(0,3);
+h=ps.length?'<p class="note">Our 3 best bets right now: the team we expect to win, at a price better than it should be. No bet is guaranteed.</p>'+ps.map((e,i)=>pickCard(e,'Pick '+(i+1))).join(''):'<div class="msg">No good bets right now. Update results and odds, or check again closer to kickoff.</div>'}
+if(tab==='value'){const vs=ev.filter(e=>e.pick),top3=[...vs].sort(rank).slice(0,3);
+ev=vs.sort((a,b)=>byT?new Date(a.commence)-new Date(b.commence):b.pick.score-a.pick.score);
+const body=ev.map(e=>pickCard(e)).join('');
+h=body?'<p class="note">A value bet pays more than the real chance deserves. Win chance shows how likely the team is to win: higher is safer. No bet is guaranteed.</p><h2 class="h2">Top 3</h2>'+top3.map((e,i)=>pickCard(e,'Top '+(i+1))).join('')+'<h2 class="h2">All value bets</h2>'+body:'<div class="msg">No value bets above the threshold right now.</div>'}
+if(tab==='arb'){ev=ev.filter(e=>e.arb).sort((a,b)=>byT?new Date(a.commence)-new Date(b.commence):b.arb.profit-a.arb.profit);const T=Math.round(bank*.25/10)*10;
+h=ev.length?'<p class="note">Arbitrage: bet on all three results at the sites shown and you get paid whichever way the match ends. Odds change fast, so check each price on the site before you bet. Amounts use 25% of your bankroll.</p>'+ev.map(e=>{const back=T*(1+e.arb.profit/100);return `<div class="card arb">${mini(e)}<div class="row"><span class="big">Profit ${ksh(back-T)}</span><span>if you spend ${ksh(T)} in total</span></div><div class="vbox">${['Home','Draw','Away'].map((x,i)=>`<div>${x==='Home'?esc(e.home):x==='Away'?esc(e.away):'Draw'}: bet <b>${ksh(e.arb.stakes[i]/100*T)}</b> at ${e.best[i].odds} <span class="site">${esc(e.best[i].book)}</span></div>`).join('')}<div class="win">Whatever happens you get back <b>${ksh(back)}</b></div></div></div>`}).join(''):'<div class="msg">No arbitrage found in the current odds. This is normal; they are rare.</div>'}
+if(tab==='all'){h=grp(ev,e=>e,e=>`<div class="card">${match(e)}<div class="row">${['Home','Draw','Away'].map((s,i)=>`<span>${s} ${pc(e.probs[i])} (best ${e.best[i].odds})</span>`).join('')}${e.xg?`<span>Goals expected ${e.xg[0]} - ${e.xg[1]}</span><span>Over 2.5: ${pc(e.xg[2])}</span>`:''}</div></div>`)||'<div class="msg">No upcoming matches fit these filters.</div>'}
+o.innerHTML=h}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});$('#bk').value=bank;$('#bk').oninput=()=>{bank=Math.max(0,+$('#bk').value||0);try{localStorage.setItem('bank',bank)}catch(e){}render()};
+$('#out').addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;ko[k]=e.target.value;try{localStorage.setItem('ko',JSON.stringify(ko))}catch(x){}render()});
+$('#out').addEventListener('click',async e=>{const t=e.target,post=(u,m,b)=>api(u,{method:m,headers:{'Content-Type':'application/json'},body:b&&JSON.stringify(b)});
+try{if(t.id==='badd'){const v=i=>$('#'+i).value;if(!v('bm')||!(+v('bo')>1)||!(+v('bt')>0))return alert('Enter the match, odds and stake.');await post('/api/bets','POST',{fixture:v('bm'),pick:v('bp'),site:v('bs'),odds:+v('bo'),stake:+v('bt')});render()}
+else if(t.dataset.res){await post(`/api/bets/${t.dataset.id}/${t.dataset.res}`,'POST');render()}
+else if(t.dataset.del){if(confirm('Delete this bet?')){await post('/api/bets/'+t.dataset.del,'DELETE');render()}}
+else if(t.dataset.log){const b=JSON.parse(t.dataset.log),site=prompt('Which site did you bet on?',b.site);if(!site)return;const odds=parseFloat(prompt('Odds you got?',b.odds)),stake=parseFloat(prompt('Stake in KSh?',b.stake));if(!(odds>1&&stake>0))return;await post('/api/bets','POST',{...b,site,odds,stake});t.textContent='Saved in My bets';t.disabled=true}}catch(x){alert(x.message)}});
+$('#lg').onchange=render;$('#q').oninput=render;$('#so').onchange=render;
+$('#dt').onchange=()=>{if($('#dt').value!=='date')$('#dd').value='';render()};$('#dd').onchange=()=>{$('#dt').value=$('#dd').value?'date':'all';render()};
+async function run(btn,u,l){btn.disabled=true;btn.textContent='Updating...';$('#st').textContent=l;try{await api(u,{method:'POST'});await load()}catch(e){$('#st').textContent=e.message}btn.disabled=false;btn.textContent=btn.dataset.l}
+$('#rm').dataset.l='Update results';$('#ro').dataset.l='Update odds';$('#rk').dataset.l='Update Kenyan odds';
+$('#rm').onclick=()=>run($('#rm'),'/api/refresh/matches','Fetching results for 5 leagues. This takes about 3 minutes (free-tier rate limit).');
+$('#ro').onclick=()=>run($('#ro'),'/api/refresh/odds','Fetching odds...');
+$('#rk').onclick=()=>run($('#rk'),'/api/refresh/kenya','Fetching Betika and Odibets odds...');
+load();
+</script></body></html>
