@@ -110,7 +110,40 @@ function grp(list,get,fn){let last='';return list.map(x=>{const e=get(x),d=day0(
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pc=x=>(x*100).toFixed(1)+'%',LG={PL:'Premier League',PD:'La Liga',SA:'Serie A',BL1:'Bundesliga',FL1:'Ligue 1'};
 const when=d=>new Date(d).toLocaleString([], {weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-async function api(u,o){const r=await fetch(u,o);if(!r.ok){let m=r.statusText;try{m=(await r.json()).detail}catch(e){}throw new Error(m)}return r.json()}
+
+const API_BASE = "https://ventiedge.onrender.com";
+
+async function api(u, o = {}) {
+    const url = u.startsWith("http")
+        ? u
+        : `${API_BASE}${u.startsWith("/") ? "" : "/"}${u}`;
+
+    let response;
+
+    try {
+        response = await fetch(url, o);
+    } catch (error) {
+        throw new Error(
+            "Cannot connect to VentiEdge's server. Check the Render deployment and CORS settings."
+        );
+    }
+
+    if (!response.ok) {
+        let message = `${response.status} ${response.statusText}`;
+
+        try {
+            const body = await response.json();
+            message = body.detail || body.message || message;
+        } catch (error) {
+            // Keep the HTTP error if the response is not JSON.
+        }
+
+        throw new Error(message);
+    }
+
+    return response.json();
+}
+
 async function load(){try{data=await api('/api/picks');skew=data.now?new Date(data.now)-Date.now():0;const u=data.odds_updated;$('#st').textContent=dateNote()+(u?'Odds updated '+new Date(u).toLocaleString()+'. Arbitrage windows close fast; confirm odds at the bookmaker before betting.':'No odds yet. Click Update odds.')}catch(e){$('#st').textContent=e.message}render()}
 let bi=0,bkey='',hov=false,playing=!(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 function go(n){const t=document.querySelectorAll('#ban .slide');if(!t.length)return;bi=(n+t.length)%t.length;$('#ban .trk').style.transform=`translateX(-${bi*100}%)`;document.querySelectorAll('#ban .dot').forEach((d,k)=>d.setAttribute('aria-current',k===bi))}
