@@ -83,6 +83,9 @@ footer{max-width:1200px;margin:auto;padding:0 16px 32px;color:#e8f5ec;font-size:
 <section class="ban" id="ban" hidden aria-roledescription="carousel" aria-label="Top three teams most likely to win"></section><main id="out"></main>
 <footer>For information only. Odds change fast and every bet can lose, so never stake money you cannot afford to lose. 18+ only. Suggested stakes use quarter-Kelly, capped at 5% of your bankroll.</footer>
 <script>
+  
+const API_BASE = "https://ventiedge.onrender.com";
+
 const $=s=>document.querySelector(s);const cr=u=>u?`<img class="cr" src="${esc(u)}" alt="" loading="lazy" onerror="this.remove()">`:'';let tab='win',data=null,byT=false,skew=0;
 const nowD=()=>new Date(Date.now()+skew);
 let bank=(()=>{try{return +localStorage.getItem('bank')||10000}catch(e){return 10000}})();
