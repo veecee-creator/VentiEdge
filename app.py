@@ -1,4 +1,4 @@
-    if not S:
+if not S:
         raise HTTPException(400, "No matches could be tested yet.")
 
     def combo(wf, whp):
